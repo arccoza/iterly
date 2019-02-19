@@ -1,0 +1,10 @@
+{
+  "name": "iterly",
+  "version": "0.1.0",
+  "description": "Composable iterator and async iterator tools",
+  "main": "index.js",
+  "repository": "https://github.com/arccoza/iterly",
+  "author": "Adrien de Pierres",
+  "license": "MIT",
+  "private": true
+}
