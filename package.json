@@ -10,5 +10,9 @@
   "devDependencies": {
     "nyc": "^13.3.0",
     "tape": "^4.10.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/tape ./test/*.test.js",
+    "coverage": "./node_modules/.bin/nyc ./node_modules/.bin/tape ./test/*.test.js"
   }
 }
