@@ -168,4 +168,4 @@ function iter(obj, {async=false, sentinel=undefined}={}) {
 //   console.log(i)
 // }
 
-module.exports = {setIt, iter, iterArray, iterObject, iterFn, iterReadable}
+module.exports = {ITERATOR, ASYNC_ITERATOR, setIt, iter, iterArray, iterObject, iterFn, iterReadable}
