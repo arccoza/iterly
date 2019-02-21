@@ -64,12 +64,10 @@ Range.prototype.entries = function() {
 }
 
 Range.prototype.get = function(idx) {
-  if (this.length === 0 || idx < 0)
+  if (idx >= this.length || idx < 0)
     return undefined
-
-  var {start, stop, step} = this
-  var v = start + idx * step
-  return Math.abs(v) < Math.abs(stop) ? v : undefined
+  
+  return this.start + idx * this.step
 }
 
 Range.prototype.has = function(val) {
