@@ -42,7 +42,7 @@ Range.prototype[ITERATOR] = function() {
 
   return setIt({
     next() {
-      if (!done && !(done = i++ > length)) {
+      if (!done && !(done = i++ >= length)) {
         value = v
         v += step
       }
