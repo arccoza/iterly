@@ -76,6 +76,11 @@ Range.prototype.has = function(val) {
   return !((val - start) % step) && (step > 0 && val >= start && val < stop || step < 0 && val <= start && val > stop)
 }
 
+Range.prototype.indexOf = function(val) {
+  var {start, step} = this
+  return !this.has(val) ? -1 : ((val - start) / step)
+}
+
 const range = Range.new
 
 
@@ -83,7 +88,7 @@ const range = Range.new
 // var r = range(13,1,-6)
 // var r = range(-13,13,5)
 
-// console.log(r, r.length, r.has(7))
+// console.log(r, r.length, r.indexOf(7))
 
 // for (var v of r) {
 //   console.log(v)
