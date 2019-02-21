@@ -9,6 +9,7 @@
   "private": true,
   "devDependencies": {
     "nyc": "^13.3.0",
+    "tap-spec": "^5.0.0",
     "tape": "^4.10.1"
   },
   "scripts": {

@@ -64,7 +64,7 @@ Range.prototype.entries = function() {
 Range.prototype.get = function(idx) {
   if (idx >= this.length || idx < 0)
     return undefined
-  
+
   return this.start + idx * this.step
 }
 
