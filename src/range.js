@@ -73,16 +73,17 @@ Range.prototype.has = function(val) {
     return undefined
 
   var {start, stop, step} = this
-  val = Math.abs(val)
-  return val >= Math.abs(start) && val < Math.abs(stop) && !(val % Math.abs(step))
+  return !((val - start) % step) && (step > 0 && val >= start && val < stop || step < 0 && val <= start && val > stop)
 }
 
 const range = Range.new
 
 
-// var r = range(4)
+// var r = range(1,8,6)
+// var r = range(13,1,-6)
+// var r = range(-13,13,5)
 
-// console.log(r, r.length, r.get(1))
+// console.log(r, r.length, r.has(7))
 
 // for (var v of r) {
 //   console.log(v)
