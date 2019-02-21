@@ -5,15 +5,19 @@ const {ITERATOR, setIt, iter} = require('./iter')
 
 
 function Range(start, stop, step) {
-  if (arguments.length == 0)
+  const argsLen = (start != null) + (stop != null) + (step != null)
+
+  if (!(this instanceof Range))
+    return new Range(start, stop, step)
+  if (argsLen == 0)
     throw new Error('Range requires at least 1 argument.')
 
-  if (arguments.length == 1)
-    stop = parseInt(start, 10), start = 0, step = 1
-  else if (arguments.length == 2)
-    start = parseInt(start, 10), stop = parseInt(stop, 10), step = 1
+  if (argsLen == 1)
+    stop = parseInt(start, 10) || 0, start = 0, step = 1
+  else if (argsLen == 2)
+    start = parseInt(start, 10) || 0, stop = parseInt(stop, 10) || 0, step = 1
   else
-    start = parseInt(start, 10), stop = parseInt(stop, 10), step = parseInt(step, 10)
+    start = parseInt(start, 10) || 0, stop = parseInt(stop, 10) || 0, step = parseInt(step, 10) || 1
 
   if (step == 0)
     throw new Error('step cannot be zero.')
@@ -25,10 +29,11 @@ function Range(start, stop, step) {
   Object.defineProperty(this, 'stop', {value: stop, writable: false, enumerable: true})
   Object.defineProperty(this, 'step', {value: step, writable: false, enumerable: true})
   Object.defineProperty(this, 'length', {value: length, writable: false})
+  return this
 }
 
-Range.new = function(...args) {
-  return new Range(...args)
+Range.new = function(start, stop, step) {
+  return new Range(start, stop, step)
 }
 
 Range.prototype[ITERATOR] = function() {
@@ -78,14 +83,12 @@ Range.prototype.has = function(val) {
   return val >= Math.abs(start) && val < Math.abs(stop) && !(val % Math.abs(step))
 }
 
-function range(...args) {
-  return Range.new(...args)
-}
+const range = Range
 
 
-// var r = range(0, 5, 2)
+// var r = new Range(4)
 
-// console.log(r.has(5))
+// console.log(r, r.length)
 
 // for (var v of r) {
 //   console.log(v)
