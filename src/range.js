@@ -22,7 +22,7 @@ function Range(start, stop, step) {
 
   var length = stop - start
   length = length === 0 ? length : length / step
-  length = length < 0 ? 0 : Math.floor(length)
+  length = length < 0 ? 0 : Math.ceil(length)
   Object.defineProperty(this, 'start', {value: start, writable: false, enumerable: true})
   Object.defineProperty(this, 'stop', {value: stop, writable: false, enumerable: true})
   Object.defineProperty(this, 'step', {value: step, writable: false, enumerable: true})
