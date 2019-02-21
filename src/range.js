@@ -32,18 +32,14 @@ Range.new = function(...args) {
 }
 
 Range.prototype[ITERATOR] = function() {
-  var {start, stop, step} = this
-  var i = start, value, done, fail
-  if (step > 0)
-    fail = (a, b) => a >= b
-  else if (step < 0)
-    fail = (a, b) => a <= b
+  var {start, step, length} = this
+  var i = 0, v = start, value, done
 
   return setIt({
     next() {
-      if (!done && !(done = fail(i, stop))) {
-        value = i
-        i += step
+      if (!done && !(done = i++ > length)) {
+        value = v
+        v += step
       }
       return {value, done}
     }
@@ -87,11 +83,11 @@ function range(...args) {
 }
 
 
-// var r = Range.new(0, 5, 2)
+// var r = range(0, 5, 2)
 
 // console.log(r.has(5))
 
-// for (var v of r.entries()) {
+// for (var v of r) {
 //   console.log(v)
 // }
 // console.log(it.next())
