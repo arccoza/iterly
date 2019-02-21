@@ -5,12 +5,10 @@ const {ITERATOR, setIt, iter} = require('./iter')
 
 
 function Range(start, stop, step) {
-  const argsLen = arguments.length
-
   if (!(this instanceof Range))
     return Range.apply(Object.create(Range.prototype), arguments)
 
-  if (argsLen < 2)
+  if (arguments.length < 2)
     stop = start, start = 0
 
   start = parseInt(start, 10) || 0
