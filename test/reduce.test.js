@@ -1,6 +1,11 @@
 const test = require('tape')
+const tapSpec = require('tap-spec')
 const reduce = require('../src/reduce')
 
+
+test.createStream()
+.pipe(tapSpec())
+.pipe(process.stdout)
 
 test('reduce', t => {
   t.test('Should have only one, accumulated, item', function (t) {

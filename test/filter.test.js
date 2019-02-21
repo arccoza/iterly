@@ -1,6 +1,11 @@
 const test = require('tape')
+const tapSpec = require('tap-spec')
 const filter = require('../src/filter')
 
+
+test.createStream()
+.pipe(tapSpec())
+.pipe(process.stdout)
 
 test('filter', t => {
   t.test('Should keep items that pass test fn, and maintain original order', function (t) {

@@ -8,7 +8,6 @@ test.createStream()
 .pipe(tapSpec())
 .pipe(process.stdout)
 
-
 test('range', t => {
   t.test('Constructor should be able to take variable arguments', function (t) {
     var r = new Range()

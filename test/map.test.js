@@ -1,6 +1,11 @@
 const test = require('tape')
+const tapSpec = require('tap-spec')
 const map = require('../src/map')
 
+
+test.createStream()
+.pipe(tapSpec())
+.pipe(process.stdout)
 
 test('map', t => {
   t.test('Should have the same items, modified by fn, in the same order as original', function (t) {
