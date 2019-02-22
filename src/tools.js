@@ -1,5 +1,6 @@
 'use strict'
 const undefined = void 0
+const {ITERATOR, ASYNC_ITERATOR, setIt, iter} = require('./iter')
 
 
 function isFunction(fn) {
