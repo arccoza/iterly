@@ -47,6 +47,9 @@ function compose(...fns) {
 function toAsync(it) {
   it = iter(it)
 
+  if (it == null)
+    return it
+
   return setIt({
     next() {
       var nv = it.next()
