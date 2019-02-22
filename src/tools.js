@@ -77,5 +77,12 @@ function each(fn, it) {
   }
 }
 
+function anext(it) {
+  var v = it.next()
+  return Promise.resolve(v)
+  .then(({value, done}) => Promise.all([value, done]))
+  .then(([value, done]) => ({value, done}))
+}
+
 
 module.exports = {isFunction, isPromise, isAsyncIter, curry, compose, toAsync, each}
