@@ -85,4 +85,4 @@ function anext(it) {
 }
 
 
-module.exports = {isFunction, isPromise, isAsyncIter, curry, compose, toAsync, each}
+module.exports = {isFunction, isPromise, isAsyncIter, curry, compose, toAsync, each, anext}
