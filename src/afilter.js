@@ -30,5 +30,4 @@ function afilter(fn, it) {
 }
 afilter.curry = curry(afilter)
 
-
 module.exports = afilter
