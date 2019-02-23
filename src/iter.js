@@ -46,6 +46,14 @@ function iterArray(a, chunkSize) {
   return setIt({next})
 }
 
+/**
+ * Gets an iterator of [key, value] pairs for any javascript object.
+ * @example
+ * var it = iterObject({a: 1, b: 2, c: 3})
+ * // Will give you an iterator with the values: [a, 1], [b, 2], [c, 3]
+ * @param {Object} o - The object to create an iterator from. Only iterates over an objects own-properties.
+ * @returns {@@iterator} - Returns an iterator with the [key, value] pairs from the object.
+ */
 function iterObject(o) {
   var keys = Object.keys(o), k, i = 0
 
