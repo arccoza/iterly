@@ -30,7 +30,7 @@ function setIt(it, async=false) {
  * // Will give you an iterator with the values: 1, 2, 3, 4
  * var it = iterArray([1, 2, 3, 4], 2)
  * // Will give you an iterator with the values: [1, 2], [3, 4]
- * @param a - The array like to create an iterator from.
+ * @param {(Array|arrayLike)} a - The array-like to create an iterator from.
  * @param {number} [chunkSize=0] - If set larger than zero, will break the array up
  * into chunks of length chunkSize.
  * @returns {@@iterator} - Returns an iterator with the values from the array-like.
