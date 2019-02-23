@@ -5,7 +5,7 @@ const {setIt, iter} = require('./iter')
 
 
 /**
- * A function that maps iterator values over a function.
+ * A function that maps iterator or iterable values over a function.
  * @example
  * var it = map(v => 2 * v, [1, 2, 3, 4])
  * // Will give you an iterator with the values: 2, 4, 6, 8
