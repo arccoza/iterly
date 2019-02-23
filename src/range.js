@@ -4,6 +4,14 @@ const {curry} = require('./tools')
 const {ITERATOR, setIt, iter} = require('./iter')
 
 
+/**
+ * Creates a Range object that can be iterated over.
+ * @constructor
+ * @param {number} [start=0] - The start of the range (inclusive).
+ * @param {number} stop - The end of the range (exclusive).
+ * @param {number} [step=1] - The stride of the range.
+ * @returns {Range}
+ */
 function Range(start, stop, step) {
   if (!(this instanceof Range))
     return Range.apply(Object.create(Range.prototype), arguments)
@@ -28,10 +36,22 @@ function Range(start, stop, step) {
   return this
 }
 
+/**
+ * An alternative, static method, Range constructor.
+ * @static
+ * @param {number} [start=0] - The start of the range (inclusive).
+ * @param {number} stop - The end of the range (exclusive).
+ * @param {number} [step=1] - The stride of the range.
+ * @returns {Range}
+ */
 Range.new = function() {
   return Range.apply(Object.create(Range.prototype), arguments)
 }
 
+/**
+ * Creates an iterator of all the values in the range.
+ * @returns {Iterator}
+ */
 Range.prototype[ITERATOR] = function() {
   var {start, step, length} = this
   var i = 0, v = start, value, done
@@ -47,8 +67,17 @@ Range.prototype[ITERATOR] = function() {
   })
 }
 
+/**
+ * Creates an iterator of all the values in the range.
+ * @method
+ * @returns {Iterator}
+ */
 Range.prototype.values = Range.prototype[ITERATOR]
 
+/**
+ * Creates an iterator of all the entries in the range.
+ * @returns {Iterator} - Returns value pairs [value, value], like Set.
+ */
 Range.prototype.entries = function() {
   var it = this[ITERATOR](), v
 
@@ -61,6 +90,11 @@ Range.prototype.entries = function() {
   })
 }
 
+/**
+ * Get an item from a range by index.
+ * @param {number} idx - The index of the value in the range.
+ * @returns {number} - Returns the value at the index, or undefined.
+ */
 Range.prototype.get = function(idx) {
   if (idx >= this.length || idx < 0)
     return undefined
@@ -68,6 +102,11 @@ Range.prototype.get = function(idx) {
   return this.start + idx * this.step
 }
 
+/**
+ * Check if a value exists in a range.
+ * @param {number} val - The value to look for.
+ * @returns {boolean} - Returns true if the value exists.
+ */
 Range.prototype.has = function(val) {
   if (this.length === 0)
     return undefined
@@ -76,11 +115,24 @@ Range.prototype.has = function(val) {
   return !((val - start) % step) && (step > 0 && val >= start && val < stop || step < 0 && val <= start && val > stop)
 }
 
+/**
+ * Find the index of a value in the range.
+ * @param {number} val - The value to look for.
+ * @returns {number} - Returns the index if the value exists, -1 otherwise.
+ */
 Range.prototype.indexOf = function(val) {
   var {start, step} = this
   return !this.has(val) ? -1 : ((val - start) / step)
 }
 
+/**
+ * An alternative, functional, Range constructor.
+ * @function
+ * @param {number} [start=0] - The start of the range (inclusive).
+ * @param {number} stop - The end of the range (exclusive).
+ * @param {number} [step=1] - The stride of the range.
+ * @returns {Range}
+ */
 const range = Range.new
 
 
