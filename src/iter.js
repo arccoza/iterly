@@ -26,9 +26,9 @@ function iterArray(a, chunkSize) {
   var i = 0
   
   if (chunkSize > 0)
-    function next() { return i < a.length ? {value: a.slice(i, (i += chunkSize))} : {done: true} }
+    var next = function next() { return i < a.length ? {value: a.slice(i, (i += chunkSize))} : {done: true} }
   else
-    function next() { return i < a.length ? {value: a[i++]} : {done: true} }
+    var next = function next() { return i < a.length ? {value: a[i++]} : {done: true} }
 
   return setIt({next})
 }
