@@ -64,7 +64,7 @@ function iterObject(o) {
   })
 }
 
-function iterFn(fn, {sentinel, async=false}) {
+function iterFn(fn, {sentinel, isAsync=false}) {
   var value, o = {i: 0, sentinel}
 
   return setIt({
@@ -72,11 +72,11 @@ function iterFn(fn, {sentinel, async=false}) {
       value = fn(o)
       o.i++
 
-      if (async)
+      if (isAsync)
         return value.then(value => value !== sentinel ? {value} : {done: true})
       return value !== sentinel ? {value} : {done: true}
     }
-  }, async)
+  }, isAsync)
 }
 
 function iterReadable(reader, chunkSize) {
