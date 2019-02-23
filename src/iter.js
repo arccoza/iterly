@@ -64,6 +64,21 @@ function iterObject(o) {
   })
 }
 
+/**
+ * Turns a function into an iterator.
+ * @example
+ * var it = iterFn(({i, sentinel}) => i >= 4 ? sentinel : i * 2, {sentinel: {}})
+ * // Will give you an iterator with the values: 0, 2, 4, 6
+ * @param {function({i, sentinel})} fn - The iterator will return whatever this function returns,
+ * until it returns the sentinel value, then it will stop. The function is given an object with
+ * an index i and the sentinel value, you can add any other state you want to keep between iterations
+ * to this object if you like.
+ * @param {Object} options - This options object must contain the sentinel property, the sentinel
+ * is returned by fn to signal the end of iteration.
+ * @param options.sentinel - Any distinct value to use as an indicator that the iterator function is done.
+ * @param {Boolean} options.isAsync - If true an async-iterator will be returned.
+ * @returns {(@@iterator|@@asyncIterator)} - Returns an iterator or async-iterator with the values returned by fn.
+ */
 function iterFn(fn, {sentinel, isAsync=false}) {
   var value, o = {i: 0, sentinel}
 
