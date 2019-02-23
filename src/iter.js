@@ -142,6 +142,15 @@ function iterReadable(reader, chunkSize) {
   return it
 }
 
+/**
+ * Gets an iterator / async-iterator for any iterable, async-iterable, array-like, or function with a sentinel.
+ * @param {Object} obj - The possible iterable to create an iterator for.
+ * @param {Object} options
+ * @param options.sentinel - Any distinct value to use as a stop indicator when creating an iterator from a function,
+ * see iterFn.
+ * @param {Boolean} options.isAsync - If true and obj is a function, an async-iterator will be returned.
+ * @returns {(@@iterator|@@asyncIterator|undefined)} - Returns an iterator, async-iterator, or undefined if obj is not iterable.
+ */
 function iter(obj, {sentinel=undefined, isAsync=false}={}) {
   if (obj == null)
     return obj
