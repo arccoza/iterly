@@ -142,7 +142,7 @@ function iterReadable(reader, chunkSize) {
   return it
 }
 
-function iter(obj, {isAsync=false, sentinel=undefined}={}) {
+function iter(obj, {sentinel=undefined, isAsync=false}={}) {
   if (obj == null)
     return obj
   else if (obj[ITERATOR])
