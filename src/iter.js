@@ -142,7 +142,7 @@ function iterReadable(reader, chunkSize) {
   return it
 }
 
-function iter(obj, {async=false, sentinel=undefined}={}) {
+function iter(obj, {isAsync=false, sentinel=undefined}={}) {
   if (obj == null)
     return obj
   else if (obj[ITERATOR])
@@ -152,7 +152,7 @@ function iter(obj, {async=false, sentinel=undefined}={}) {
   else if (obj[ASYNC_ITERATOR])
     return obj[ASYNC_ITERATOR]()
   else if (obj.call && obj.apply && sentinel !== undefined)
-    return iterFn(obj, {async, sentinel})
+    return iterFn(obj, {isAsync, sentinel})
 
   
   // if (async) {
