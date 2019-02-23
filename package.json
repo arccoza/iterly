@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "documentation": "^9.2.0",
     "nyc": "^13.3.0",
     "tap-spec": "^5.0.0",
     "tape": "^4.10.1"
