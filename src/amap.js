@@ -39,6 +39,18 @@ function amap(fn, it) {
     }
   }, true)
 }
+
+/**
+* Allows you to curry the arguments, most useful when used with compose.
+* @function
+* @example
+* var curried = amap.curry(v => 2 * v)
+* var it = [1, 2, 3, 4]
+* it = curried(it)
+* // Will give you an async-iterator with the promised values: 2, 4, 6, 8
+* @param {...any} args - The arguments to bind.
+* @returns {curriedFunction} - The curried version of the original function, with bindable args.
+*/
 amap.curry = curry(amap)
 
 
