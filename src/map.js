@@ -23,6 +23,18 @@ function map(fn, it) {
     }
   })
 }
+
+/**
+* Allows you to curry the arguments, most useful when used with compose.
+* @function
+* @example
+* var curried = map.curry(v => 2 * v)
+* var it = [1, 2, 3, 4]
+* it = curried(it)
+* // Will give you an iterator with the values: 2, 4, 6, 8
+* @param {...any} args - The arguments to bind.
+* @returns {curriedFunction} - The curried version of the original function, with bindable args.
+*/
 map.curry = curry(map)
 
 
