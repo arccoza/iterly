@@ -40,6 +40,18 @@ function areduce(fn, acc, it) {
     }
   }, true)
 }
+
+/**
+* Allows you to curry the arguments, most useful when used with compose.
+* @function
+* @example
+* var curried = areduce.curry((acc, val) => acc + val)
+* var it = [1, 2, 3, 4]
+* it = curried(it)
+* // Will give you an async-iterator with the promised value: 10
+* @param {...any} args - The arguments to bind.
+* @returns {curriedFunction} - The curried version of the original function, with bindable args.
+*/
 areduce.curry = curry(areduce)
 
 
