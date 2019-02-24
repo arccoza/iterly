@@ -16,8 +16,8 @@ const {setIt, iter} = require('./iter')
  * each(txt => console.log(txt), it)
  * // Will print the first 140 characters of text for each file referenced by the urls
  * @param {function(value:any, index:number)} fn - The function to modify each value in the iterator.
- * @param {@@asynIterator} it - The iterator or iterable to map over.
- * @returns {@@asynIterator} - Returns an async-iterator with values returned by fn.
+ * @param {@@iterator|@@asyncIterator} it - The iterator, iterable, async-iterator or async-iterable to map over.
+ * @returns {@@asyncIterator} - Returns an async-iterator with values returned by fn.
  */
 function amap(fn, it) {
   it = toAsync(iter(it))
