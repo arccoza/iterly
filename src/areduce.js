@@ -21,6 +21,7 @@ const {setIt, iter} = require('./iter')
  * @param {@@iterator|@@asyncIterator} it - The iterator, iterable, async-iterator or async-iterable to reduce.
  * @returns {@@asyncIterator} - Returns an async-iterator with only one promised value.
  */
+ // TODO: Investigate adding an `n` param, to return multiple reductions, each from `n` items.
 function areduce(fn, acc, it) {
   it = toAsync(iter(it))
   var p, done = false, i = 0
