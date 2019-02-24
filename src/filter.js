@@ -25,6 +25,19 @@ function filter(fn, it) {
     }
   })
 }
+
+/**
+* Allows you to curry the arguments, most useful when used with compose.
+* @function
+* @example
+* var curried = filter.curry(v => v != 2)
+* var it = [1, 2, 3, 4]
+* it = curried(it)
+* var it = filter(it)
+* // Will give you an iterator with the values: 1, 3, 4
+* @param {...any} args - The arguments to bind.
+* @returns {curriedFunction} - The curried version of the original function, with bindable args.
+*/
 filter.curry = curry(filter)
 
 module.exports = filter
