@@ -13,7 +13,7 @@ const {setIt, iter} = require('./iter')
  * // Will give you an iterator with a single item, which will be an array: [1, 2, 3, 4]
  * @param {function(accumulator:any, value:any, index:number)} fn - The reducer function continually updates
  * the accumulator, until the iterator ends, then the accumulated value is returned.
- * @param acc - The accumulator, each item in the iterator or iterable will be added to this by fn.
+ * @param acc - The accumulator's initial value, each item in the iterator or iterable will be added to this by fn.
  * @param {@@iterator} it - The iterator or iterable to reduce.
  * @returns {@@iterator} - Returns an iterator with only one value.
  */
