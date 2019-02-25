@@ -16,6 +16,7 @@
   "scripts": {
     "test": "./node_modules/.bin/tape ./test/*.test.js",
     "coverage": "./node_modules/.bin/nyc ./node_modules/.bin/tape ./test/*.test.js",
-    "doc": "./node_modules/.bin/documentation"
+    "doc": "./node_modules/.bin/documentation",
+    "readmedoc": "yarn doc readme ./src/index.js --section=API --config documentation.yaml"
   }
 }
