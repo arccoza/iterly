@@ -7,7 +7,7 @@ const amap = require('./amap')
 const afilter = require('./afilter')
 const areduce = require('./areduce')
 const {ITERATOR, ASYNC_ITERATOR, setIt, iter, iterArray, iterObject, iterFn, iterReadable} = require('./iter')
-const {isFunction, isPromise, isAsyncIter, curry, compose, toAsync, each, anext} = require('./tools')
+const {isFunction, isPromise, isAsyncIter, isArrayLike, curry, compose, toAsync, each, anext} = require('./tools')
 
 
 module.exports = {
@@ -15,5 +15,5 @@ module.exports = {
   range, enumerate,
   amap, afilter, areduce,
   ITERATOR, ASYNC_ITERATOR, setIt, iter, iterArray, iterObject, iterFn, iterReadable,
-  isFunction, isPromise, isAsyncIter, curry, compose, toAsync, each, anext,
+  isFunction, isPromise, isAsyncIter, isArrayLike, curry, compose, toAsync, each, anext,
 }
