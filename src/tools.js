@@ -28,6 +28,7 @@ const __ = new Placeholder()
 * Returns a curried version of the provided function.
 * @param {function} fn - The function to curry.
 * @param {...any} [args] - Any arguments to bind.
+* @returns {function} - Returns the curried function.
 */
 function curry(fn, ...args) {
   const arity = fn.length
