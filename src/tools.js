@@ -88,19 +88,22 @@ function toAsync(it) {
 }
 
 function each(fn, it) {
-  var isAsync = isAsyncIter(it)
+  it = iter(it)
+  var isAsync = isAsyncIter(it), value, done
+  var skipDone = fn.length < 2
 
   if (isAsync) {
-    return it.next().then(function step({value, done}) {
+    return it.next().then(function step(v) {
+      ({value, done} = v)
       if (done)
-        return fn(value, done)
+        return skipDone ? Promise.resolve(value) : fn(value, done)
       return fn(value), it.next().then(step)
     })
   }
   else {
     for (var value, done; {value, done} = it.next(), !done;)
       fn(value)
-    fn(value, done)
+    skipDone ? value : fn(value, done)
   }
 }
 
