@@ -43,6 +43,26 @@ function curry(fn, ...args) {
   }
 }
 
+/**
+* Perhaps the most useful function here; allows you to compose (combine)
+* other functions into one new function that takes one argument of
+* an iterable, async-iterable, iterator, or async-iterator.
+* @example
+* var urlPrefix = 'http://some.resource.com/'
+* var files = ['file.txt', 'file2.txt', 'file3.txt', 'file4.txt']
+* 
+* var getShortTexts = compose(
+*   filter.curry(file => file != 'file3.txt'), // Removes file3.txt
+*   map.curry(file => urlPrefix + file), // Adds the url prefix to the file names, creating the file url
+*   amap.curry(url => fetch(url).then(res => res.text())), // Fetches the files from the web
+*   afilter.curry(txt => txt.length <= 140), // Removes files longer than 140 characters
+* )
+* 
+* each(txt => console.log(txt), getShortTexts([files]))
+* // Will print out the contents of the files with 140 or fewer chracters, skipping file3.txt.
+* @param {...function} fns - Any number of functions to combine.
+* @returns {function(it:anyIterableOrAsyncIterable)} - The composed function.
+*/
 function compose(...fns) {
   return function(it) {
     for (var i = 0, fn; fn = fns[i]; i++)
