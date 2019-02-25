@@ -95,6 +95,13 @@ function toAsync(it) {
 * Loops over any iterable, async-iterable, iterator, async-iterator or array-like,
 * calling fn for each item. If looping over an async-iterable / async-iterator
 * a promise will be returned by each with the value of the final return from fn.
+* @example
+* each((value) => console.log(value), [1, 2, 3, 4])
+* // Will print:
+* // 1
+* // 2
+* // 3
+* // 4
 * @param {function(value)|function(value, done)} fn - The fn to call for each item. The function will be called
 * for every value in the iterable / async-iterable. If the function has a second param (done) then
 * the loop function will be called when the iterable / async-iterable is done, with a done value of true.
