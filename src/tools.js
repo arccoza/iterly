@@ -15,6 +15,10 @@ function isAsyncIter(it) {
   return Boolean(it && !it[ITERATOR] && it[ASYNC_ITERATOR])
 }
 
+function isArrayLike(obj) {
+  return typeof obj.length === 'number'
+}
+
 class Placeholder {  // Substitute, Dummy
   constructor() {
     this.isPlaceholder = true
@@ -129,4 +133,4 @@ function anext(it) {
 }
 
 
-module.exports = {isFunction, isPromise, isAsyncIter, curry, compose, toAsync, each, anext}
+module.exports = {isFunction, isPromise, isAsyncIter, isArrayLike, curry, compose, toAsync, each, anext}
