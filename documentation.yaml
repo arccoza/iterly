@@ -1,0 +1,17 @@
+toc:
+  - each
+  - iter
+  - iterArray
+  - iterObject
+  - iterFn
+  - compose
+  - curry
+  - map
+  - reduce
+  - filter
+  - enumerate
+  - amap
+  - areduce
+  - afilter
+  - Range
+  - range
