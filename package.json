@@ -6,7 +6,7 @@
   "repository": "https://github.com/arccoza/iterly",
   "author": "Adrien de Pierres",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "devDependencies": {
     "documentation": "^9.2.0",
     "nyc": "^13.3.0",
