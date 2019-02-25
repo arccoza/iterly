@@ -1,6 +1,6 @@
 'use strict'
 const undefined = void 0
-const {curry, toAsync} = require('./tools')
+const {curry, toAsync, isPromise} = require('./tools')
 const {setIt, iter} = require('./iter')
 
 
