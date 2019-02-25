@@ -51,6 +51,17 @@ a promise will be returned by each with the value of the final return from fn.
 -   `it` **(iterable | asyncIterable)** The iterable, async-iterable, iterator, async-iterator or array-like
     to loop over.
 
+### Examples
+
+```javascript
+each((value) => console.log(value), [1, 2, 3, 4])
+// Will print:
+// 1
+// 2
+// 3
+// 4
+```
+
 Returns **([Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise) \| [undefined](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined))** Returns a Promise that resolves to the last value returned by fn if looping
 over an async-iterable. If looping over an iterable returns undefined.
 
