@@ -4,6 +4,19 @@ const {curry, isAsyncIter, each} = require('./tools')
 const {setIt, iter} = require('./iter')
 
 
+/**
+* Enumerate takes an iterable, async-iterable, iterator, or async-iterator
+* and returns the same with its values updated with an [index, value] pair,
+* starting at 0 or at the optional start arg.
+* @example
+* var arr = ['a', 'b', 'c', 'd']
+* var it = enumerate(arr)
+* // Will give you an iterator with the values: [0, 'a'], [1, 'b'], [2, 'c'], [3, 'd']
+* @param {number} [start=0] - The optional index start.
+* @param {(iterable|asyncIterable)} it - The iterable or async-iterable to return.
+* @returns {(iterator|asyncIterator)} - Returns an iterator or async-iterator with
+* the [index, value] pair items.
+*/
 function enumerate(start, it) {
   if (arguments.length == 1)
     it = start, start = 0
