@@ -22,6 +22,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "benchmark": "^2.1.4",
     "documentation": "^9.2.0",
     "nyc": "^13.3.0",
     "tap-spec": "^5.0.0",
