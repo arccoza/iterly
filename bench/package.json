@@ -1,0 +1,13 @@
+{
+  "name": "iterly-benchmarks",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "iterly0_5": "npm:iterly@0.5.0"
+  },
+  "devDependencies": {
+    "benchmark": "^2.1.4"
+  }
+}
