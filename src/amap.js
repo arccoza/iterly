@@ -54,4 +54,85 @@ function amap(fn, it) {
 amap.curry = curry(amap)
 
 
+function amap2(fn, it) {
+  it = toAsync(iter(it))
+  var value, done, p, i = 0, i2 = 0
+  var qa = []
+  qa.put = function(i, v) {
+    this[i - i2] = v
+    while(qa[0] !== undefined) {
+      i2++
+      qb.shift()(qa.shift())
+    }
+  }
+  var qb = []
+  // var _next = () => it.next().then(v => )
+  
+  return setIt({
+    next() {
+      // if (done)
+      //   return p
+      
+      var j = i++
+      it.next().then(v => qa.put(j, v))
+      // _next().then(([i, v]) => qa.put(i, v))
+      return new Promise(res => qb.push(res))
+    }
+  }, true)
+}
+
+function createIt(max) {
+  var i = 0
+  return setIt({
+    next() {
+      var j = i++
+      return new Promise((res, rej) => {
+        if (j > max)
+          return res({done: true})
+        // if (j == 2)
+        //   return res({value: createIt(2)})
+        setTimeout(() => res({value: j}), 1000 / (j + 1))
+      })
+    }
+  }, true)
+}
+
+var m1 = amap(v => v, createIt(4))
+var m2 = amap(v => v, createIt(4))
+var m3 = amap2(v => v, createIt(4))
+var print = console.log.bind(console)
+
+
+// var all = []
+// var start = process.hrtime()
+// all.push(m1.next().then(print))
+// all.push(m1.next().then(print))
+// all.push(m1.next().then(print))
+// all.push(m1.next().then(print))
+// all.push(m1.next().then(print))
+// all.push(m1.next().then(print))
+// Promise.all(all).then(_ => print('m1 -> ', process.hrtime(start)))
+
+// var start = process.hrtime()
+// var a = async () => {
+//   print(await m2.next())
+//   print(await m2.next())
+//   print(await m2.next())
+//   print(await m2.next())
+//   print(await m2.next())
+//   print(await m2.next())
+// }
+// a().then(_ => print('m2 -> ', process.hrtime(start)))
+
+var all = []
+var start = process.hrtime()
+all.push(m3.next().then(print))
+all.push(m3.next().then(print))
+all.push(m3.next().then(print))
+all.push(m3.next().then(print))
+all.push(m3.next().then(print))
+all.push(m3.next().then(print))
+Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start)))
+
+
 module.exports = amap
