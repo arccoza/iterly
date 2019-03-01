@@ -54,14 +54,14 @@ function amap(fn, it) {
 amap.curry = curry(amap)
 
 
-function taskMaster(it) {
-  if (it.isTasked)
+function supervise(it) {
+  if (it.isSupervised)
     return it
 
   it = iter(it)
 
   var obj = {
-    isTasked: true,
+    isSupervised: true,
     it,
     jobs: [],
     tickets: [],
@@ -75,20 +75,18 @@ function taskMaster(it) {
       console.log('tickets: ', tickets.length)
     },
     nextJob(op) {
-      var {it, jobs, tickets, check} = this
+      var {it, jobs, check} = this
       var done, job = anext(it).then(v => op(v, job)).then(v => (done = v.done, v.value)).then(value => ({value, done}))
       console.log(jobs.push(job))
       job.then(v => (job.ok = true, check(), v))
     },
-    next(op, needsTicket=true) {
-      var {tickets} = this
+    next(op) {
       this.nextJob(op)
-
-      if (needsTicket)
-        return new Promise(res => tickets.push(res))
+      return new Promise(res => this.tickets.push(res))
     }
   }
   obj.check = obj.check.bind(obj)
+  obj.nextJob = obj.nextJob.bind(obj)
   obj.next = obj.next.bind(obj)
 
   return setIt(obj, true)
@@ -97,7 +95,7 @@ function taskMaster(it) {
 
 function amap2(fn, it) {
   // it = toAsync(iter(it))
-  it = taskMaster(it)
+  it = supervise(it)
   var _next = it.next
 
   it.next = function next(op) {
@@ -116,16 +114,17 @@ function amap2(fn, it) {
 
 function afilter2(fn, it) {
   var _next = it.next
+
   it.next = function next(op) {
     return _next(function step(v, job) {
       if (!v.done && !fn(v.value)) {
-        // console.log('oi', v)
         job.skip = true
         it.nextJob(step)
       }
       return v
     })
   }
+
   return it
 }
 
@@ -149,6 +148,7 @@ function createIt(max) {
 var m1 = amap(v => v, createIt(4))
 var m2 = amap(v => v, createIt(4))
 var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
+// var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
 m3 = afilter2(v => v != 4, m3)
 var print = console.log.bind(console)
 
@@ -182,7 +182,7 @@ all.push(m3.next().then(print))
 all.push(m3.next().then(print))
 all.push(m3.next().then(print))
 all.push(m3.next().then(print))
-Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start)))
+Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start))).catch(print)
 
 
 module.exports = amap
