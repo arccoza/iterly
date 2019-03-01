@@ -55,19 +55,25 @@ amap.curry = curry(amap)
 
 
 function taskMaster(it) {
+  if (it.isTasked)
+    return it
+
   var obj = {
+    isTasked: true,
     it,
     jobs: [],
     tickets: [],
     check() {
       var {jobs, tickets} = this
       while (jobs[0] && jobs[0].ok) {
-        tickets.shift()(jobs.shift())
+        var job = jobs.shift()
+        if (!job.skip)
+          tickets.shift()(job)
       }
     },
-    next(fn) {
+    next(op) {
       var {it, jobs, tickets, check} = this
-      var job = it.next().then(v => fn(v, job))
+      var job = it.next().then(v => op(v, job))
       jobs.push(job)
       job.then(check)
       return new Promise(res => tickets.push(res))
@@ -81,20 +87,39 @@ function taskMaster(it) {
 
 
 function amap2(fn, it) {
-  it = toAsync(iter(it))
-  var t = taskMaster(it)
-  
-  return setIt({
-    next() {
-      return t.next((v, job) => {
-        if (!v.done)
-          v.value = fn(v.value)
-        job.ok = true
-        return v
-      })
-    }
-  }, true)
+  // it = toAsync(iter(it))
+  it = taskMaster(it)
+  var _next = it.next
+
+  it.next = function next(op) {
+    return _next((v, job) => {
+      if (!v.done) {
+        v.value = fn(v.value)
+        if (op)
+          v = op(v, job)
+      }
+      job.ok = true
+      return v
+    })
+  }
+
+  return it
 }
+
+function afilter2(fn, it) {
+  var _next = it.next
+  it.next = function next(op) {
+    return _next((v, job) => {
+      if (!v.done && !fn(v.value)) {
+        job.skip = true
+        return next(op)
+      }
+      return v
+    })
+  }
+  return it
+}
+
 
 function createIt(max) {
   var i = 0
@@ -114,7 +139,8 @@ function createIt(max) {
 
 var m1 = amap(v => v, createIt(4))
 var m2 = amap(v => v, createIt(4))
-var m3 = amap2(v => v, createIt(4))
+var m3 = amap2(v => v * 2, createIt(4))
+m3 = afilter2(v => v != 4, m3)
 var print = console.log.bind(console)
 
 
