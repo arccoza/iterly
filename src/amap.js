@@ -63,19 +63,21 @@ function amap2(fn, it) {
       tickets.shift()(jobs.shift())
     }
   }
+  function next(fn) {
+    var job = it.next().then(v => fn(v, job))
+    jobs.push(job)
+    job.then(check)
+    return new Promise(res => tickets.push(res))
+  }
   
   return setIt({
     next() {
-      
-      var p = it.next().then(v => {
+      return next((v, job) => {
         if (!v.done)
           v.value = fn(v.value)
+        job.ok = true
         return v
       })
-      .then(v => (p.ok = true, check(), v))
-      jobs.push(p)
-      // _next().then(([i, v]) => qa.put(i, v))
-      return new Promise(res => tickets.push(res))
     }
   }, true)
 }
