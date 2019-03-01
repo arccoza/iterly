@@ -56,27 +56,26 @@ amap.curry = curry(amap)
 
 function amap2(fn, it) {
   it = toAsync(iter(it))
-  var value, done, p, i = 0, i2 = 0
-  var qa = []
-  qa.put = function(i, v) {
-    this[i - i2] = v
-    while(qa[0] !== undefined) {
-      i2++
-      qb.shift()(qa.shift())
+  var jobs = []
+  var tickets = []
+  function check() {
+    while (jobs[0] && jobs[0].ok) {
+      tickets.shift()(jobs.shift())
     }
   }
-  var qb = []
-  // var _next = () => it.next().then(v => )
   
   return setIt({
     next() {
-      // if (done)
-      //   return p
       
-      var j = i++
-      it.next().then(v => qa.put(j, v))
+      var p = it.next().then(v => {
+        if (!v.done)
+          v.value = fn(v.value)
+        return v
+      })
+      .then(v => (p.ok = true, check(), v))
+      jobs.push(p)
       // _next().then(([i, v]) => qa.put(i, v))
-      return new Promise(res => qb.push(res))
+      return new Promise(res => tickets.push(res))
     }
   }, true)
 }
