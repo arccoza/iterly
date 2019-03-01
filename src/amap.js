@@ -1,6 +1,6 @@
 'use strict'
 const undefined = void 0
-const {curry, toAsync, isPromise} = require('./tools')
+const {curry, toAsync, isPromise, anext} = require('./tools')
 const {setIt, iter} = require('./iter')
 
 
@@ -58,6 +58,8 @@ function taskMaster(it) {
   if (it.isTasked)
     return it
 
+  it = iter(it)
+
   var obj = {
     isTasked: true,
     it,
@@ -70,13 +72,20 @@ function taskMaster(it) {
         if (!job.skip)
           tickets.shift()(job)
       }
+      console.log('tickets: ', tickets.length)
     },
-    next(op) {
+    nextJob(op) {
       var {it, jobs, tickets, check} = this
-      var job = it.next().then(v => op(v, job))
-      jobs.push(job)
-      job.then(check)
-      return new Promise(res => tickets.push(res))
+      var done, job = anext(it).then(v => op(v, job)).then(v => (done = v.done, v.value)).then(value => ({value, done}))
+      console.log(jobs.push(job))
+      job.then(v => (job.ok = true, check(), v))
+    },
+    next(op, needsTicket=true) {
+      var {tickets} = this
+      this.nextJob(op)
+
+      if (needsTicket)
+        return new Promise(res => tickets.push(res))
     }
   }
   obj.check = obj.check.bind(obj)
@@ -96,9 +105,8 @@ function amap2(fn, it) {
       if (!v.done) {
         v.value = fn(v.value)
         if (op)
-          v = op(v, job)
+          v = isPromise(v.value) ? v.value.then(value => op({value}, job)) : op(v, job)
       }
-      job.ok = true
       return v
     })
   }
@@ -109,10 +117,11 @@ function amap2(fn, it) {
 function afilter2(fn, it) {
   var _next = it.next
   it.next = function next(op) {
-    return _next((v, job) => {
+    return _next(function step(v, job) {
       if (!v.done && !fn(v.value)) {
+        // console.log('oi', v)
         job.skip = true
-        return next(op)
+        it.nextJob(step)
       }
       return v
     })
@@ -139,7 +148,7 @@ function createIt(max) {
 
 var m1 = amap(v => v, createIt(4))
 var m2 = amap(v => v, createIt(4))
-var m3 = amap2(v => v * 2, createIt(4))
+var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 m3 = afilter2(v => v != 4, m3)
 var print = console.log.bind(console)
 
