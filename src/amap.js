@@ -54,25 +54,39 @@ function amap(fn, it) {
 amap.curry = curry(amap)
 
 
-function amap2(fn, it) {
-  it = toAsync(iter(it))
-  var jobs = []
-  var tickets = []
-  function check() {
-    while (jobs[0] && jobs[0].ok) {
-      tickets.shift()(jobs.shift())
+function taskMaster(it) {
+  var obj = {
+    it,
+    jobs: [],
+    tickets: [],
+    check() {
+      var {jobs, tickets} = this
+      while (jobs[0] && jobs[0].ok) {
+        tickets.shift()(jobs.shift())
+      }
+    },
+    next(fn) {
+      var {it, jobs, tickets, check} = this
+      var job = it.next().then(v => fn(v, job))
+      jobs.push(job)
+      job.then(check)
+      return new Promise(res => tickets.push(res))
     }
   }
-  function next(fn) {
-    var job = it.next().then(v => fn(v, job))
-    jobs.push(job)
-    job.then(check)
-    return new Promise(res => tickets.push(res))
-  }
+  obj.check = obj.check.bind(obj)
+  obj.next = obj.next.bind(obj)
+
+  return setIt(obj, true)
+}
+
+
+function amap2(fn, it) {
+  it = toAsync(iter(it))
+  var t = taskMaster(it)
   
   return setIt({
     next() {
-      return next((v, job) => {
+      return t.next((v, job) => {
         if (!v.done)
           v.value = fn(v.value)
         job.ok = true
