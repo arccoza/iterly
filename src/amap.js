@@ -72,21 +72,29 @@ function supervise(it) {
         if (!job.skip)
           tickets.shift()(job)
       }
-      console.log('tickets: ', tickets.length)
+      // console.log('tickets: ', tickets.length)
     },
-    nextJob(op) {
+    getTask() {
+      return anext(it)
+    },
+    addJob(op) {
       var {it, jobs, check} = this
-      var done, job = anext(it).then(v => op(v, job)).then(v => (done = v.done, v.value)).then(value => ({value, done}))
-      console.log(jobs.push(job))
-      job.then(v => (job.ok = true, check(), v))
+      var done, job = this.getTask().then(v => op(v, job)).then(v => (done = v.done, v.value)).then(value => ({value, done}))
+      var i = jobs.push(job)
+      job.then(v => (job.ok = true, check(), v)).catch(err => console.log('err -> ', err))
+      return job
+    },
+    addTicket() {
+      return new Promise(res => this.tickets.push(res))
     },
     next(op) {
-      this.nextJob(op)
-      return new Promise(res => this.tickets.push(res))
+      var ticket = this.addTicket()
+      this.addJob(op)
+      return ticket
     }
   }
   obj.check = obj.check.bind(obj)
-  obj.nextJob = obj.nextJob.bind(obj)
+  obj.addJob = obj.addJob.bind(obj)
   obj.next = obj.next.bind(obj)
 
   return setIt(obj, true)
@@ -119,7 +127,7 @@ function afilter2(fn, it) {
     return _next(function step(v, job) {
       if (!v.done && !fn(v.value)) {
         job.skip = true
-        it.nextJob(step)
+        it.addJob(step)
       }
       return v
     })
