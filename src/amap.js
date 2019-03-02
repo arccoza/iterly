@@ -2,6 +2,7 @@
 const undefined = void 0
 const {curry, toAsync, isPromise, anext} = require('./tools')
 const {setIt, iter} = require('./iter')
+const supervise = require('./supervise')
 
 
 /**
@@ -54,55 +55,7 @@ function amap(fn, it) {
 amap.curry = curry(amap)
 
 
-function supervise(it) {
-  if (it.isSupervised)
-    return it
-
-  it = iter(it)
-
-  var obj = {
-    isSupervised: true,
-    it,
-    jobs: [],
-    tickets: [],
-    check() {
-      var {jobs, tickets} = this
-      while (jobs[0] && jobs[0].ok) {
-        var job = jobs.shift()
-        if (!job.skip)
-          tickets.shift()(job)
-      }
-      // console.log('tickets: ', tickets.length)
-    },
-    getTask() {
-      return anext(it)
-    },
-    addJob(op) {
-      var {it, jobs, check} = this
-      var done, job = this.getTask().then(v => op(v, job)).then(v => (done = v.done, v.value)).then(value => ({value, done}))
-      var i = jobs.push(job)
-      job.then(v => (job.ok = true, check(), v)).catch(err => console.log('err -> ', err))
-      return job
-    },
-    addTicket() {
-      return new Promise(res => this.tickets.push(res))
-    },
-    next(op) {
-      var ticket = this.addTicket()
-      this.addJob(op)
-      return ticket
-    }
-  }
-  obj.check = obj.check.bind(obj)
-  obj.addJob = obj.addJob.bind(obj)
-  obj.next = obj.next.bind(obj)
-
-  return setIt(obj, true)
-}
-
-
 function amap2(fn, it) {
-  // it = toAsync(iter(it))
   it = supervise(it)
   var _next = it.next
 
