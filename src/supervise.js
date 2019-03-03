@@ -96,6 +96,22 @@ function amap2(fn, it) {
   return it
 }
 
+function amap3(fn, it) {
+  it = iter(it)
+  var prev
+
+  return setIt({
+    next() {
+      var _prev = prev
+      return prev = anext(it).then(({value, done}) => {
+        if (!done)
+          value = fn(value)
+        return Promise.all([value, _prev]).then(([value]) => ({value, done}))
+      })
+    }
+  })
+}
+
 function afilter2(fn, it) {
   var _next = it.next
 
@@ -129,11 +145,12 @@ function createIt(max) {
   }, true)
 }
 
-var m1 = amap(v => v, createIt(4))
-var m2 = amap(v => v, createIt(4))
-var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
+// var m1 = amap(v => v, createIt(4))
+// var m2 = amap(v => v, createIt(4))
+// var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
-m3 = afilter2(v => v != 4, m3)
+var m3 = amap3(v => v *= 2, createIt(4))
+// m3 = afilter2(v => v != 4, m3)
 var print = console.log.bind(console)
 
 
