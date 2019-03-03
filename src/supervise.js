@@ -2,6 +2,7 @@
 const undefined = void 0
 const {curry, toAsync, isPromise, anext} = require('./tools')
 const {setIt, iter} = require('./iter')
+const afilter = require('./afilter')
 
 
 function checkJobs(err) {
@@ -132,6 +133,36 @@ function afilter2(fn, it) {
   return it
 }
 
+function afilter3(fn, it) {
+  it = iter(it)
+  var prev, tasks = []
+  var enqueue = () => {
+    var task = prev = anext(it).then(v => {
+      return [v, v.done || fn(v.value)]
+    })
+
+    tasks.push(task)
+    return(task)
+  }
+
+  return setIt({
+    next() {
+      var _prev = prev
+      var task = enqueue()
+      
+      return Promise.all([task, _prev])
+      .then(() => {
+        return tasks.shift().then(function step([v, ok]) {
+          if (ok)
+            return v
+          enqueue()
+          return tasks.shift().then(step)
+        })
+      })
+    }
+  })
+}
+
 
 function createIt(max) {
   var i = 0
@@ -154,7 +185,7 @@ function createIt(max) {
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
 var m3 = amap3(v => v *= 2, createIt(4))
-// m3 = afilter2(v => v != 4, m3)
+m3 = afilter3(v => v != 4 && v != 6, m3)
 var print = console.log.bind(console)
 
 
