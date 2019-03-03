@@ -138,11 +138,17 @@ function afilter3(fn, it) {
   var prev, tasks = []
   var enqueue = () => {
     var task = prev = anext(it).then(v => {
-      return [v, v.done || fn(v.value)]
+      return Promise.all([v, v.done || fn(v.value)])
     })
 
     tasks.push(task)
-    return(task)
+    return task
+  }
+  var validate = ([v, ok]) => {
+    if (ok)
+      return v
+    enqueue()
+    return tasks.shift().then(validate)
   }
 
   return setIt({
@@ -152,12 +158,7 @@ function afilter3(fn, it) {
       
       return Promise.all([task, _prev])
       .then(() => {
-        return tasks.shift().then(function step([v, ok]) {
-          if (ok)
-            return v
-          enqueue()
-          return tasks.shift().then(step)
-        })
+        return tasks.shift().then(validate)
       })
     }
   })
