@@ -103,10 +103,14 @@ function amap3(fn, it) {
   return setIt({
     next() {
       var _prev = prev
-      return prev = anext(it).then(({value, done}) => {
-        if (!done)
-          value = fn(value)
-        return Promise.all([value, _prev]).then(([value]) => ({value, done}))
+      return prev = anext(it).then(v => {
+        if (!v.done)
+          v.value = fn(v.value)
+        return Promise.all([v.value, v.done, _prev])
+        .then(([value, done, prev]) => {
+          value = done ? prev.value : value          
+          return {value, done}
+        })
       })
     }
   })
