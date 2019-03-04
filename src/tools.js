@@ -121,7 +121,7 @@ function each(fn, it) {
     return new Promise(function step(res, rej) {
       it.next().then(v => {
         if (!v.done) {
-          ret = Promise.resolve(fn(v.value))
+          ret = Promise.resolve(fn(v.value)).catch(rej)
           ret.then(v => step(res, rej))
         }
         else
