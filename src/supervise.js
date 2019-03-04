@@ -135,7 +135,7 @@ function afilter2(fn, it) {
 
 function afilter3(fn, it) {
   it = iter(it)
-  var prev, tasks = []
+  var prev = Promise.resolve(), tasks = []
   var enqueue = () => {
     var task = prev = anext(it).then(v => {
       return Promise.all([v, v.done || fn(v.value)])
@@ -152,14 +152,13 @@ function afilter3(fn, it) {
   }
 
   return setIt({
+    tasks,
     next() {
       var _prev = prev
       var task = enqueue()
+      console.log(tasks.length)
       
-      return Promise.all([task, _prev])
-      .then(() => {
-        return tasks.shift().then(validate)
-      })
+      return _prev.then(() => tasks.shift().then(validate))
     }
   })
 }
@@ -219,7 +218,7 @@ all.push(m3.next().then(print))
 all.push(m3.next().then(print))
 all.push(m3.next().then(print))
 all.push(m3.next().then(print))
-Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start))).catch(print)
+Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start), m3.tasks)).catch(print)
 
 
 module.exports = supervise
