@@ -115,20 +115,24 @@ function toAsync(it) {
 function each(fn, it) {
   it = iter(it)
   var isAsync = isAsyncIter(it), value, done, ret
-  var skipDone = fn.length < 2
+  var runDone = fn.length >= 2
 
   if (isAsync) {
-    return it.next().then(function step(v) {
-      ({value, done} = v)
-      if (done)
-        return skipDone ? ret : ret = fn(value, done)
-      return ret = fn(value), it.next().then(step)
+    return new Promise(function step(res, rej) {
+      it.next().then(v => {
+        if (!v.done) {
+          ret = Promise.resolve(fn(v.value))
+          ret.then(v => step(res, rej))
+        }
+        else
+          res(runDone ? ret : ret = Promise.resolve(fn(v.value, v.done)))
+      })
     })
   }
   else {
     for (var value, done; {value, done} = it.next(), !done;)
       ret = fn(value)
-    skipDone ? ret : ret = fn(value, done)
+    runDone ? ret : ret = fn(value, done)
   }
 }
 
