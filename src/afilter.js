@@ -23,25 +23,35 @@ const {setIt, iter} = require('./iter')
  */
 function afilter(fn, it) {
   it = iter(it)
-  var _next = anext.bind(null, it)
-  var p = Promise.resolve(), done = false
-  
+  var prev, tasks = []
+
+  function enqueue(fn, task) {
+    task = task.then(v => {
+      return Promise.all([v, v.done || fn(v.value)])
+    })
+
+    tasks.push(task)
+    return task
+  }
+
+  function validate([v, ok]) {
+    if (ok)
+      return v
+    enqueue(fn, anext(it))
+    return tasks.shift().then(validate)
+  }
+
+  function shift() {
+    return tasks.shift().then(validate)
+  }
+
   return setIt({
+    // tasks,
     next() {
-      if (done)
-        return p
+      var _prev = prev
+      enqueue(fn, anext(it))
 
-      return p = p.then(_next).then(function step(v) {
-        if (done = v.done)
-          return v
-
-        var ok = fn(v.value)
-        if (isPromise(ok))
-          return ok.then(ok => ok ? v : _next().then(step))
-        else if(ok)
-          return v
-        return _next().then(step)
-      })
+      return prev = Promise.resolve(_prev).then(shift)
     }
   }, true)
 }
