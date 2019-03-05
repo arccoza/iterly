@@ -103,26 +103,34 @@ function amap3(fn, it) {
   it = iter(it)
   var prev
 
+  function start() {
+    return anext(it)
+    .then(v => {
+      if (v.done)
+        return v
+      return Promise.resolve(fn(v.value)).then(value => ({value}))
+    })
+  }
+
+  function strip([v, prev]) {
+    return v.done ? (v.value = prev.value, v) : v
+  }
+
   return setIt({
     next() {
       var _prev = prev
-      return prev = anext(it).then(v => {
-        if (!v.done)
-          v.value = fn(v.value)
+      var task = start()
 
-        return Promise.all([v.value, v.done, _prev])
-        .then(([value, done, prev]) => {
-          value = done ? prev.value : value          
-          return {value, done}
-        })
-      })
+      return prev = Promise.all([task, _prev]).then(strip)
     }
   }, true)
 }
 
 async function* amapn(fn, it) {
+  it = iter(it)
+
   while (true) {
-    var v = await it.next()
+    var v = await anext(it)
     
     if (!v.done) {
       v.value = await fn(v.value)
@@ -200,8 +208,8 @@ function createIt(max) {
 // var m2 = amap(v => v, createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
-var m3 = createIt(4)
-// var m3 = range(40000000)
+// var m3 = createIt(4)
+var m3 = range(4)
 // m3 = toAsync(m3)
 var m3 = amap3(v => v *= 2, m3)
 // m3 = afilter3(v => v != 4 && v != 6, m3)
@@ -229,15 +237,15 @@ var print = console.log.bind(console)
 // }
 // a().then(_ => print('m2 -> ', process.hrtime(start)))
 
-var all = []
-var start = process.hrtime()
-all.push(m3.next().then(print))
-all.push(m3.next().then(print))
-all.push(m3.next().then(print))
-all.push(m3.next().then(print))
-all.push(m3.next().then(print))
-all.push(m3.next().then(print))
-Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start), m3.tasks)).catch(print)
+// var all = []
+// var start = process.hrtime()
+// all.push(m3.next().then(print))
+// all.push(m3.next().then(print))
+// all.push(m3.next().then(print))
+// all.push(m3.next().then(print))
+// all.push(m3.next().then(print))
+// all.push(m3.next().then(print))
+// Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start), m3.tasks)).catch(print)
 
 function each2(fn, it) {
   it = iter(it)
@@ -274,7 +282,7 @@ async function eachNative(it) {
   while (true) {
     var v = await it.next()
 
-    if (v.value % 1000000 == 0) {
+    if (v.value % 1 == 0) {
       var used = process.memoryUsage().heapUsed / 1024 / 1024
       print(v, used)
     }
@@ -284,8 +292,8 @@ async function eachNative(it) {
   }
 }
 
-// var start = process.hrtime()
-// eachNative(m3).then(v => print(process.hrtime(start)))
+var start = process.hrtime()
+eachNative(m3).then(v => print(process.hrtime(start)))
 
 
 function forAwaitEach(source, callback, thisArg) {
