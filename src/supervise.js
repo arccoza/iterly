@@ -103,9 +103,8 @@ function amap3(fn, it) {
   it = iter(it)
   var prev
 
-  function start() {
-    return anext(it)
-    .then(v => {
+  function start(task) {
+    return task.then(v => {
       if (v.done)
         return v
       return Promise.resolve(fn(v.value)).then(value => ({value}))
@@ -119,7 +118,7 @@ function amap3(fn, it) {
   return setIt({
     next() {
       var _prev = prev
-      var task = start()
+      var task = start(anext(it))
 
       return prev = Promise.all([task, _prev]).then(strip)
     }
@@ -208,8 +207,8 @@ function createIt(max) {
 // var m2 = amap(v => v, createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
-// var m3 = createIt(4)
-var m3 = range(4)
+var m3 = createIt(4)
+// var m3 = range(4)
 // m3 = toAsync(m3)
 var m3 = amap3(v => v *= 2, m3)
 // m3 = afilter3(v => v != 4 && v != 6, m3)
