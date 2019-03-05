@@ -212,10 +212,10 @@ function createIt(max) {
 // var m2 = amap(v => v, createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
-// var m3 = createIt(8)
-var m3 = range(40000000)
+var m3 = createIt(40000)
+// var m3 = range(40000)
 // m3 = toAsync(m3)
-// var m3 = amap(v => v *= 2, m3)
+var m3 = amap(v => v *= 2, m3)
 m3 = afilter(v => v != 4 && v != 6, m3)
 var print = console.log.bind(console)
 
@@ -252,36 +252,52 @@ var print = console.log.bind(console)
 // all.push(m3.next().then(print))
 // Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start), m3.tasks)).catch(print)
 
-function each2(fn, it) {
+function each2(x, fn, it) {
+  if (arguments.length < 3)
+    it = fn, fn = x, x = 1
+
   it = iter(it)
   var isAsync = isAsyncIter(it), value, done, ret
-  var skipDone = fn.length < 2
+  var runDone = fn.length >= 2
 
   if (isAsync) {
     return new Promise(function step(res, rej) {
-      it.next().then(v => {
-        if (!v.done)
-          ret = Promise.resolve(fn(v.value)), ret.then(v => step(res, rej))
-        else
-          res(skipDone ? ret : ret = Promise.resolve(fn(v.value, v.done)))
+      // Grab `x` tasks, run in parallel
+      for (var tasks = []; tasks.push(it.next()) < x;);
+
+      // Wait for all tasks to run
+      Promise.all(tasks).then(tasks => {
+        for (var i = 0, v; v = tasks[i], i < tasks.length;) {
+          done = v.done
+          if (!done || runDone)
+            tasks[i++] = fn(v.value, v.done)
+          if (done)
+            break
+        }
+        // Wait for any returned promises, return the last tasks value
+        return Promise.all(tasks).then(v => v[i - 1])
       })
+      // If done, resolve, otherwise step again
+      .then(v => done ? res(v) : step(res, rej))
     })
   }
   else {
     for (var value, done; {value, done} = it.next(), !done;)
       ret = fn(value)
-    skipDone ? ret : ret = fn(value, done)
+    runDone ? ret : ret = fn(value, done)
   }
 }
 
-// var start = process.hrtime()
-// each((v, d) => {
-//   if (v % 1000000 == 0) {
-//     var used = process.memoryUsage().heapUsed / 1024 / 1024
-//     print(v, d, used)
-//   }
-//   return v
-// }, m3).then(v => print(v, process.hrtime(start)))
+var start = process.hrtime()
+each2(33, function(v, d) {
+  if (v % 1000 == 0) {
+    var used = process.memoryUsage().heapUsed / 1024 / 1024
+    print(v, used)
+  }
+  // print(arguments[0], arguments[1])
+  return v
+}, m3)
+.then(v => print(v, process.hrtime(start)))
 
 async function eachNative(it) {
   while (true) {
@@ -297,8 +313,8 @@ async function eachNative(it) {
   }
 }
 
-var start = process.hrtime()
-eachNative(m3).then(v => print(process.hrtime(start)))
+// var start = process.hrtime()
+// eachNative(m3).then(v => print(process.hrtime(start)))
 
 
 function forAwaitEach(source, callback, thisArg) {
