@@ -21,24 +21,35 @@ const supervise = require('./supervise')
  * @returns {@@asyncIterator} - Returns an async-iterator with values returned by fn.
  */
 function amap(fn, it) {
-  it = toAsync(iter(it))
-  var value, done, p
-  
+  it = iter(it)
+  var prev
+
   return setIt({
     next() {
-      if (done)
-        return p
-      return p = it.next()
-      .then(v => Promise.all([v.value, v.done]))
-      .then(v => {
-        done = v[1]
-        if (done)
-          return {value, done}
-        value = fn(v[0])
-        return isPromise(value) ? value.then(v => ({value: (value = v), done})) : {value, done}
-      })
+      var _prev = prev
+      var task = start(fn, anext(it))
+
+      return prev = Promise.all([task, _prev]).then(strip)
     }
   }, true)
+}
+
+/**
+* Helper fn
+*/
+function start(fn, task) {
+  return task.then(v => {
+    if (v.done)
+      return v
+    return Promise.resolve(fn(v.value)).then(value => ({value}))
+  })
+}
+
+/**
+* Helper fn
+*/
+function strip([v, prev]) {
+  return v.done ? (v.value = prev.value, v) : v
 }
 
 /**
