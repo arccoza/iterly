@@ -112,21 +112,34 @@ function toAsync(it) {
 * @returns {Promise|undefined} - Returns a Promise that resolves to the last value returned by fn if looping
 * over an async-iterable. If looping over an iterable returns undefined.
 */
-function each(fn, it) {
+function each(x, fn, it) {
+  if (arguments.length < 3)
+    it = fn, fn = x, x = 1
+  x = x < 1 ? 1 : x
+
   it = iter(it)
   var isAsync = isAsyncIter(it), value, done, ret
   var runDone = fn.length >= 2
 
   if (isAsync) {
     return new Promise(function step(res, rej) {
-      it.next().then(v => {
-        if (!v.done) {
-          ret = Promise.resolve(fn(v.value)).catch(rej)
-          ret.then(v => step(res, rej))
+      // Grab `x` tasks, to run in parallel
+      for (var tasks = []; tasks.push(it.next()) < x;);
+
+      // Wait for all tasks to run
+      Promise.all(tasks).then(tasks => {
+        for (var i = 0, v; v = tasks[i], i < tasks.length;) {
+          done = v.done
+          if (!done || runDone)
+            tasks[i++] = fn(v.value, v.done)
+          if (done)
+            break
         }
-        else
-          res(runDone ? ret : ret = Promise.resolve(fn(v.value, v.done)))
+        // Wait for any returned promises, return the last tasks value
+        return Promise.all(tasks).then(v => v[i - 1])
       })
+      // If done, resolve, otherwise step again
+      .then(v => done ? res(v) : step(res, rej))
     })
   }
   else {
