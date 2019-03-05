@@ -158,30 +158,35 @@ function afilter2(fn, it) {
 
 function afilter3(fn, it) {
   it = iter(it)
-  var prev = Promise.resolve(), tasks = []
-  var enqueue = () => {
-    var _prev = prev
-    prev = anext(it).then(v => {
+  var prev, tasks = []
+
+  function enqueue(fn, task) {
+    task = task.then(v => {
       return Promise.all([v, v.done || fn(v.value)])
     })
 
-    tasks.push(prev)
-    return _prev
+    tasks.push(task)
+    return task
   }
-  var validate = ([v, ok]) => {
+
+  function validate([v, ok]) {
     if (ok)
       return v
-    enqueue()
+    enqueue(fn, anext(it))
+    return tasks.shift().then(validate)
+  }
+
+  function shift() {
     return tasks.shift().then(validate)
   }
 
   return setIt({
-    tasks,
+    // tasks,
     next() {
-      var prev = enqueue()
-      // console.log(tasks.length)
-      
-      return prev.then(() => tasks.shift().then(validate))
+      var _prev = prev
+      enqueue(fn, anext(it))
+
+      return prev = Promise.resolve(_prev).then(shift)
     }
   }, true)
 }
@@ -207,11 +212,11 @@ function createIt(max) {
 // var m2 = amap(v => v, createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
-var m3 = createIt(4)
-// var m3 = range(4)
+// var m3 = createIt(8)
+var m3 = range(40000000)
 // m3 = toAsync(m3)
-var m3 = amap3(v => v *= 2, m3)
-// m3 = afilter3(v => v != 4 && v != 6, m3)
+// var m3 = amap(v => v *= 2, m3)
+m3 = afilter(v => v != 4 && v != 6, m3)
 var print = console.log.bind(console)
 
 
@@ -238,6 +243,7 @@ var print = console.log.bind(console)
 
 // var all = []
 // var start = process.hrtime()
+// all.push(m3.next().then(print))
 // all.push(m3.next().then(print))
 // all.push(m3.next().then(print))
 // all.push(m3.next().then(print))
@@ -281,7 +287,7 @@ async function eachNative(it) {
   while (true) {
     var v = await it.next()
 
-    if (v.value % 1 == 0) {
+    if (v.value % 1000000 == 0) {
       var used = process.memoryUsage().heapUsed / 1024 / 1024
       print(v, used)
     }
