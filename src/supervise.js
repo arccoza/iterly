@@ -1,7 +1,9 @@
 'use strict'
 const undefined = void 0
-const {curry, toAsync, isPromise, anext} = require('./tools')
+const {curry, toAsync, isPromise, anext, each, isAsyncIter} = require('./tools')
+const {range} = require('./range')
 const {setIt, iter} = require('./iter')
+const amap = require('./amap')
 const afilter = require('./afilter')
 
 
@@ -107,6 +109,7 @@ function amap3(fn, it) {
       return prev = anext(it).then(v => {
         if (!v.done)
           v.value = fn(v.value)
+
         return Promise.all([v.value, v.done, _prev])
         .then(([value, done, prev]) => {
           value = done ? prev.value : value          
@@ -114,7 +117,20 @@ function amap3(fn, it) {
         })
       })
     }
-  })
+  }, true)
+}
+
+async function* amapn(fn, it) {
+  while (true) {
+    var v = await it.next()
+    
+    if (!v.done) {
+      v.value = await fn(v.value)
+      yield v.value
+    }
+    else
+      return
+  }
 }
 
 function afilter2(fn, it) {
@@ -137,12 +153,13 @@ function afilter3(fn, it) {
   it = iter(it)
   var prev = Promise.resolve(), tasks = []
   var enqueue = () => {
-    var task = prev = anext(it).then(v => {
+    var _prev = prev
+    prev = anext(it).then(v => {
       return Promise.all([v, v.done || fn(v.value)])
     })
 
-    tasks.push(task)
-    return task
+    tasks.push(prev)
+    return _prev
   }
   var validate = ([v, ok]) => {
     if (ok)
@@ -154,13 +171,12 @@ function afilter3(fn, it) {
   return setIt({
     tasks,
     next() {
-      var _prev = prev
-      var task = enqueue()
-      console.log(tasks.length)
+      var prev = enqueue()
+      // console.log(tasks.length)
       
-      return _prev.then(() => tasks.shift().then(validate))
+      return prev.then(() => tasks.shift().then(validate))
     }
-  })
+  }, true)
 }
 
 
@@ -170,7 +186,7 @@ function createIt(max) {
     next() {
       var j = i++
       return new Promise((res, rej) => {
-        if (j > max)
+        if (j >= max)
           return res({done: true})
         // if (j == 2)
         //   return res({value: createIt(2)})
@@ -184,8 +200,11 @@ function createIt(max) {
 // var m2 = amap(v => v, createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(res.bind(null, v), 5000)) : v), createIt(4))
 // var m3 = amap2(v => ((v *= 2), v == 4 ? new Promise((res, rej) => setTimeout(rej.bind(null, v), 5000)) : v), createIt(4))
-var m3 = amap3(v => v *= 2, createIt(4))
-m3 = afilter3(v => v != 4 && v != 6, m3)
+var m3 = createIt(4)
+// var m3 = range(40000000)
+// m3 = toAsync(m3)
+var m3 = amap3(v => v *= 2, m3)
+// m3 = afilter3(v => v != 4 && v != 6, m3)
 var print = console.log.bind(console)
 
 
@@ -220,5 +239,90 @@ all.push(m3.next().then(print))
 all.push(m3.next().then(print))
 Promise.all(all).then(_ => print('m3 -> ', process.hrtime(start), m3.tasks)).catch(print)
 
+function each2(fn, it) {
+  it = iter(it)
+  var isAsync = isAsyncIter(it), value, done, ret
+  var skipDone = fn.length < 2
+
+  if (isAsync) {
+    return new Promise(function step(res, rej) {
+      it.next().then(v => {
+        if (!v.done)
+          ret = Promise.resolve(fn(v.value)), ret.then(v => step(res, rej))
+        else
+          res(skipDone ? ret : ret = Promise.resolve(fn(v.value, v.done)))
+      })
+    })
+  }
+  else {
+    for (var value, done; {value, done} = it.next(), !done;)
+      ret = fn(value)
+    skipDone ? ret : ret = fn(value, done)
+  }
+}
+
+// var start = process.hrtime()
+// each((v, d) => {
+//   if (v % 1000000 == 0) {
+//     var used = process.memoryUsage().heapUsed / 1024 / 1024
+//     print(v, d, used)
+//   }
+//   return v
+// }, m3).then(v => print(v, process.hrtime(start)))
+
+async function eachNative(it) {
+  while (true) {
+    var v = await it.next()
+
+    if (v.value % 1000000 == 0) {
+      var used = process.memoryUsage().heapUsed / 1024 / 1024
+      print(v, used)
+    }
+
+    if (v.done)
+      break
+  }
+}
+
+// var start = process.hrtime()
+// eachNative(m3).then(v => print(process.hrtime(start)))
+
+
+function forAwaitEach(source, callback, thisArg) {
+  var asyncIterator = source
+  if (asyncIterator) {
+    var i = 0
+    return new Promise(function(resolve, reject) {
+      function next() {
+        asyncIterator
+          .next()
+          .then(function(step) {
+            if (!step.done) {
+              Promise.resolve(callback.call(thisArg, step.value, i++, source))
+                .then(next)
+                .catch(reject)
+            } else {
+              resolve()
+            }
+            // Explicitly return null, silencing bluebird-style warnings.
+            return null
+          })
+          .catch(reject)
+        // Explicitly return null, silencing bluebird-style warnings.
+        return null
+      }
+      next()
+    })
+  }
+}
+
+// var start = process.hrtime()
+// forAwaitEach(m3, (v) => {
+//   if (v % 1000000 == 0) {
+//     var used = process.memoryUsage().heapUsed / 1024 / 1024
+//     print(v, used)
+//   }
+//   return v
+// }).then(_ => print('done', process.hrtime(start)))
 
 module.exports = supervise
