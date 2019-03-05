@@ -255,6 +255,7 @@ var print = console.log.bind(console)
 function each2(x, fn, it) {
   if (arguments.length < 3)
     it = fn, fn = x, x = 1
+  x = x < 1 ? 1 : x
 
   it = iter(it)
   var isAsync = isAsyncIter(it), value, done, ret
