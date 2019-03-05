@@ -136,7 +136,7 @@ function each(x, fn, it) {
           if (done)
             break
         }
-        // Wait for any returned promises, return the last tasks value
+        // Wait for any returned promises, return the last task's value
         return Promise.all(tasks).then(v => v[i - 1])
       })
       // If done, resolve, otherwise step again
