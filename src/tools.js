@@ -102,6 +102,7 @@ function toAsync(it) {
 * // 2
 * // 3
 * // 4
+* @param {number} [x=1] - The number of async items to run in parallel, has no effect on sync iterables.
 * @param {function(value)|function(value, done)} fn - The fn to call for each item. The function will be called
 * for every value in the iterable / async-iterable. If the function has a second param (done) then
 * the loop function will be called when the iterable / async-iterable is done, with a done value of true.
