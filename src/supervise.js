@@ -262,7 +262,7 @@ function each2(x, fn, it) {
 
   if (isAsync) {
     return new Promise(function step(res, rej) {
-      // Grab `x` tasks, run in parallel
+      // Grab `x` tasks, to run in parallel
       for (var tasks = []; tasks.push(it.next()) < x;);
 
       // Wait for all tasks to run
