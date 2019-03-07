@@ -102,6 +102,7 @@ function toAsync(it) {
 * // 2
 * // 3
 * // 4
+* @param {number} [x=1] - The number of async items to run in parallel, has no effect on sync iterables.
 * @param {function(value)|function(value, done)} fn - The fn to call for each item. The function will be called
 * for every value in the iterable / async-iterable. If the function has a second param (done) then
 * the loop function will be called when the iterable / async-iterable is done, with a done value of true.
@@ -112,23 +113,40 @@ function toAsync(it) {
 * @returns {Promise|undefined} - Returns a Promise that resolves to the last value returned by fn if looping
 * over an async-iterable. If looping over an iterable returns undefined.
 */
-function each(fn, it) {
+function each(x, fn, it) {
+  if (arguments.length < 3)
+    it = fn, fn = x, x = 1
+  x = x < 1 ? 1 : x
+
   it = iter(it)
   var isAsync = isAsyncIter(it), value, done, ret
-  var skipDone = fn.length < 2
+  var runDone = fn.length >= 2
 
   if (isAsync) {
-    return it.next().then(function step(v) {
-      ({value, done} = v)
-      if (done)
-        return skipDone ? ret : ret = fn(value, done)
-      return ret = fn(value), it.next().then(step)
+    return new Promise(function step(res, rej) {
+      // Grab `x` tasks, to run in parallel
+      for (var tasks = []; tasks.push(it.next()) < x;);
+
+      // Wait for all tasks to run
+      Promise.all(tasks).then(tasks => {
+        for (var i = 0, v; v = tasks[i], i < tasks.length;) {
+          done = v.done
+          if (!done || runDone)
+            tasks[i++] = fn(v.value, v.done)
+          if (done)
+            break
+        }
+        // Wait for any returned promises, return the last task's value
+        return Promise.all(tasks).then(v => v[i - 1])
+      })
+      // If done, resolve, otherwise step again
+      .then(v => done ? res(v) : step(res, rej))
     })
   }
   else {
     for (var value, done; {value, done} = it.next(), !done;)
       ret = fn(value)
-    skipDone ? ret : ret = fn(value, done)
+    runDone ? ret : ret = fn(value, done)
   }
 }
 
