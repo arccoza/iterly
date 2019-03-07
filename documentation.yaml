@@ -9,9 +9,9 @@ toc:
   - map
   - reduce
   - filter
-  - enumerate
   - amap
   - areduce
   - afilter
+  - enumerate
   - Range
   - range
