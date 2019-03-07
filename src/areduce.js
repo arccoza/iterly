@@ -15,6 +15,8 @@ const {setIt, iter} = require('./iter')
  * it = areduce((acc, txt) => acc + txt.slice(0, 140), '', it)
  * each(txt => console.log(txt), it)
  * // Will print the combined 280 characters of text from each file referenced by the urls
+ * @param {number} [n=0] - If a value greater than 0 is provided, then areduce will create multiple,
+ * grouped reductions, each made of `n` items, like a scan fn.
  * @param {function(accumulator:any, value:any, index:number)} fn - The reducer function continually updates
  * the accumulator, until the iterator / async-iterator ends, then the accumulated value is returned.
  * @param acc - The accumulator's initial value, each item in the iterator or iterable will be added to this by fn.
@@ -22,22 +24,39 @@ const {setIt, iter} = require('./iter')
  * @returns {@@asyncIterator} - Returns an async-iterator with only one promised value.
  */
  // TODO: Investigate adding an `n` param, to return multiple reductions, each from `n` items.
-function areduce(fn, acc, it) {
-  it = toAsync(iter(it))
-  var p, done = false, i = 0
+function areduce(n, fn, acc, it) {
+  if (arguments.length < 4)
+    it = acc, acc = fn, fn = n, n = 0
+  n = n < 0 ? 0 : n
+
+  it = iter(it)
+  var prev, done
+
+
+  var op = function op(it, prev) {
+    for (var i = 0, arr = []; arr.push(anext(it)), ++i < n;);
+    arr.push(prev)
+    
+    var task = Promise.all(arr).then(arr => {
+      arr.pop()
+      for (var i = 0, l = arr.length, v; v = arr.shift(), !(v && v.done) && i < l; i++)
+        acc = fn(acc, v.value)
+
+      return Promise.resolve(acc).then(value => ({value: acc, done: !i}))
+    })
+
+    return n > 0 ? task : (done = true, task.then(v => v.done ? {value: v.value} : op(it)))
+  }
 
   return setIt({
     next() {
       if (done)
-        return p.then(v => (v.done = true, v))
-      done = true
+        return prev
 
-      return p = it.next().then(function step(v) {
-        if (v.done)
-          return {value: acc}
-        acc = fn(acc, v.value, i++)
-        return it.next().then(step)
-      })
+      var _prev = prev, task = op(it, _prev)
+      prev = task.then(({value}) => ({value, done: true}))
+
+      return task
     }
   }, true)
 }
