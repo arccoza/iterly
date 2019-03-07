@@ -33,9 +33,7 @@ function amap(fn, it) {
   }, true)
 }
 
-/**
-* Helper fn
-*/
+// Helper fn
 function start(fn, task) {
   return task.then(v => {
     if (v.done)
@@ -44,9 +42,7 @@ function start(fn, task) {
   })
 }
 
-/**
-* Helper fn
-*/
+// Helper fn
 function strip([v, prev]) {
   return v.done ? (v.value = prev.value, v) : v
 }
