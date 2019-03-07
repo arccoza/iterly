@@ -18,20 +18,25 @@ such as destructuring.
 
 ### Table of Contents
 
--   [each](#each)
--   [iter](#iter)
--   [iterArray](#iterarray)
--   [iterObject](#iterobject)
--   [iterFn](#iterfn)
--   [compose](#compose)
--   [curry](#curry)
--   [map](#map)
--   [reduce](#reduce)
--   [filter](#filter)
--   [enumerate](#enumerate)
--   [amap](#amap)
--   [areduce](#areduce)
--   [afilter](#afilter)
+-   Iteration helpers
+    -   [each](#each)
+    -   [iter](#iter)
+    -   [iterArray](#iterarray)
+    -   [iterObject](#iterobject)
+    -   [iterFn](#iterfn)
+-   Function composition
+    -   [compose](#compose)
+    -   [curry](#curry)
+-   Sync operators
+    -   [map](#map)
+    -   [reduce](#reduce)
+    -   [filter](#filter)
+-   Async operators
+    -   [amap](#amap)
+    -   [areduce](#areduce)
+    -   [afilter](#afilter)
+-   Sync / Async operators
+    -   [enumerate](#enumerate)
 -   [Range](#range)
 -   [range](#range-1)
 
@@ -299,28 +304,6 @@ it = curried(it)
 
 Returns **curriedFunction** The curried version of the original function, with bindable args.
 
-## enumerate
-
-Enumerate takes an iterable, async-iterable, iterator, or async-iterator
-and returns the same with its values updated with an [index, value] pair,
-starting at 0 or at the optional start arg.
-
-### Parameters
-
--   `start` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The optional index start. (optional, default `0`)
--   `it` **(iterable | asyncIterable)** The iterable or async-iterable to return.
-
-### Examples
-
-```javascript
-var arr = ['a', 'b', 'c', 'd']
-var it = enumerate(arr)
-// Will give you an iterator with the values: [0, 'a'], [1, 'b'], [2, 'c'], [3, 'd']
-```
-
-Returns **(iterator | asyncIterator)** Returns an iterator or async-iterator with
-the [index, value] pair items.
-
 ## amap
 
 A function that maps iterator, iterable, async-iterator or async-iterable values over a function.
@@ -455,6 +438,28 @@ it = curried(it)
 ```
 
 Returns **curriedFunction** The curried version of the original function, with bindable args.
+
+## enumerate
+
+Enumerate takes an iterable, async-iterable, iterator, or async-iterator
+and returns the same with its values updated with an [index, value] pair,
+starting at 0 or at the optional start arg.
+
+### Parameters
+
+-   `start` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The optional index start. (optional, default `0`)
+-   `it` **(iterable | asyncIterable)** The iterable or async-iterable to return.
+
+### Examples
+
+```javascript
+var arr = ['a', 'b', 'c', 'd']
+var it = enumerate(arr)
+// Will give you an iterator with the values: [0, 'a'], [1, 'b'], [2, 'c'], [3, 'd']
+```
+
+Returns **(iterator | asyncIterator)** Returns an iterator or async-iterator with
+the [index, value] pair items.
 
 ## Range
 
