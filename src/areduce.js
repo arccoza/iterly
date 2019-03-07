@@ -30,7 +30,7 @@ function areduce(n, fn, acc, it) {
   n = n < 0 ? 0 : n
 
   it = iter(it)
-  var prev, done
+  var prev = Promise.resolve({}), done
 
   var op = function op(it, prev) {
     for (var i = 0, arr = []; arr.push(anext(it)), ++i < n;);
@@ -44,7 +44,7 @@ function areduce(n, fn, acc, it) {
       return Promise.resolve(acc).then(value => ({value: acc, done: !i}))
     })
 
-    return n > 0 ? task : (done = true, task.then(v => v.done ? {value: v.value} : op(it)))
+    return (n > 0 ? task : (done = true, task.then(v => v.done ? {value: v.value} : op(it))))
   }
 
   return setIt({
@@ -53,7 +53,7 @@ function areduce(n, fn, acc, it) {
         return prev
 
       var _prev = prev, task = op(it, _prev)
-      prev = task.then(({value}) => ({value, done: true}))
+      prev = task.then(({value}) => ({value, done: true})).catch(err => err)
 
       return task
     }
