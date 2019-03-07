@@ -21,7 +21,7 @@ const {setIt, iter} = require('./iter')
  */
 function amap(fn, it) {
   it = iter(it)
-  var prev
+  var prev = Promise.resolve({})
 
   return setIt({
     next() {
