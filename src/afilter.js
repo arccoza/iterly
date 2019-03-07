@@ -1,6 +1,6 @@
 'use strict'
 const undefined = void 0
-const {curry, isPromise, anext} = require('./tools')
+const {curry, anext} = require('./tools')
 const {setIt, iter} = require('./iter')
 
 
