@@ -43,6 +43,7 @@ a promise will be returned by each with the value of the final return from fn.
 
 ### Parameters
 
+-   `x` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The number of async items to run in parallel, has no effect on sync iterables. (optional, default `1`)
 -   `fn` **(function (value) | function (value, done))** The fn to call for each item. The function will be called
     for every value in the iterable / async-iterable. If the function has a second param (done) then
     the loop function will be called when the iterable / async-iterable is done, with a done value of true.
@@ -369,6 +370,8 @@ A function that reduces an iterator, iterable, async-iterator or async-iterable 
 
 ### Parameters
 
+-   `n` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** If a value greater than 0 is provided, then areduce will create multiple,
+    grouped reductions, each made of `n` items, like a scan fn. (optional, default `0`)
 -   `fn` **function (accumulator: any, value: any, index: [number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number))** The reducer function continually updates
     the accumulator, until the iterator / async-iterator ends, then the accumulated value is returned.
 -   `acc`  The accumulator's initial value, each item in the iterator or iterable will be added to this by fn.
