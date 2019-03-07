@@ -39,6 +39,7 @@
   },
   "dependencies": {},
   "files": [
+    "index.js",
     "src/"
   ]
 }
