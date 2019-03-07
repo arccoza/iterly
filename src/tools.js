@@ -140,7 +140,7 @@ function each(x, fn, it) {
         return Promise.all(tasks).then(v => v[i - 1])
       })
       // If done, resolve, otherwise step again
-      .then(v => done ? res(v) : step(res, rej))
+      .then(v => done ? res(v) : step(res, rej)).catch(rej)
     })
   }
   else {
