@@ -37,5 +37,8 @@
     "doc": "./node_modules/.bin/documentation",
     "readmedoc": "yarn doc readme ./src/index.js --section=API --config documentation.yaml"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "files": [
+    "src/"
+  ]
 }
