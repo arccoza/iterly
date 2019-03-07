@@ -2,7 +2,6 @@
 const undefined = void 0
 const {curry, toAsync, isPromise, anext} = require('./tools')
 const {setIt, iter} = require('./iter')
-const supervise = require('./supervise')
 
 
 /**
