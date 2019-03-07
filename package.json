@@ -1,7 +1,7 @@
 {
   "name": "iterly",
-  "version": "0.5.0",
-  "description": "Composable iterator and async iterator tools",
+  "version": "0.6.0",
+  "description": "Composable iterator and async iterator tools, supporting old platforms without yield or async/await",
   "main": "src/index.js",
   "repository": "https://github.com/arccoza/iterly",
   "keywords": [
@@ -16,7 +16,10 @@
     "generator",
     "async-generator",
     "async",
-    "composable"
+    "composable",
+    "map",
+    "filter",
+    "reduce"
   ],
   "author": "Adrien de Pierres",
   "license": "MIT",
