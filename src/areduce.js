@@ -1,6 +1,6 @@
 'use strict'
 const undefined = void 0
-const {curry, toAsync} = require('./tools')
+const {curry, anext} = require('./tools')
 const {setIt, iter} = require('./iter')
 
 
@@ -31,7 +31,6 @@ function areduce(n, fn, acc, it) {
 
   it = iter(it)
   var prev, done
-
 
   var op = function op(it, prev) {
     for (var i = 0, arr = []; arr.push(anext(it)), ++i < n;);
