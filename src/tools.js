@@ -157,5 +157,9 @@ function anext(it) {
   .then(([value, done]) => ({value, done}))
 }
 
+function schedule(task, prev) {
+  return Promise.all([task, prev]).then(v => v[0])
+}
 
-module.exports = {isFunction, isPromise, isAsyncIter, isArrayLike, curry, compose, toAsync, each, anext}
+
+module.exports = {isFunction, isPromise, isAsyncIter, isArrayLike, curry, compose, toAsync, each, anext, schedule}
