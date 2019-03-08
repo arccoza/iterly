@@ -146,7 +146,7 @@ function each(x, fn, it) {
   else {
     for (var value, done; {value, done} = it.next(), !done;)
       ret = fn(value)
-    runDone ? ret : ret = fn(value, done)
+    !runDone ? ret : ret = fn(value, done)
   }
 }
 
