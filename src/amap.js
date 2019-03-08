@@ -1,6 +1,6 @@
 'use strict'
 const undefined = void 0
-const {curry, anext} = require('./tools')
+const {curry, anext, schedule} = require('./tools')
 const {setIt, iter} = require('./iter')
 
 
@@ -25,10 +25,7 @@ function amap(fn, it) {
 
   return setIt({
     next() {
-      var _prev = prev
-      var task = start(fn, anext(it))
-
-      return prev = Promise.all([task, _prev]).then(strip)
+      return prev = schedule(start(fn, anext(it)), prev)
     }
   }, true)
 }
@@ -40,11 +37,6 @@ function start(fn, task) {
       return v
     return Promise.resolve(fn(v.value)).then(value => ({value}))
   })
-}
-
-// Helper fn
-function strip([v, prev]) {
-  return v.done ? (v.value = prev.value, v) : v
 }
 
 /**
