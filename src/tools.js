@@ -158,7 +158,7 @@ function anext(it) {
 }
 
 function schedule(task, prev) {
-  return Promise.all([task, prev]).then(v => v[0])
+  return Promise.all([task, prev]).then(([v, prev]) => (v.done && (v.value = prev.value), v))
 }
 
 
