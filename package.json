@@ -26,10 +26,10 @@
   "private": false,
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "documentation": "^9.2.0",
+    "documentation": "^9.3.1",
     "nyc": "^13.3.0",
     "tap-spec": "^5.0.0",
-    "tape": "^4.10.1"
+    "tape": "^4.11.0"
   },
   "scripts": {
     "test": "./node_modules/.bin/tape ./test/*.test.js",
