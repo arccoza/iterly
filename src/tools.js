@@ -75,6 +75,14 @@ function compose(...fns) {
   }
 }
 
+// TODO: Create a function that returns a function
+// that creates an object with chained operators provided by `fns`,
+// like: exmpl(it).map(fn).filter(fn).amap(fn)
+// Will require improving the curry fn.
+// function combine(...fns) { // couple(...fns)?
+
+// }
+
 function toAsync(it) {
   it = iter(it)
 
